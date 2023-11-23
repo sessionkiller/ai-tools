@@ -4,7 +4,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Heading } from "@/components/heading";
-import { MessageSquare } from "lucide-react";
+import { Code, Copy, Divide } from "lucide-react";
 
 import { formSchema } from "./constants";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,8 +20,12 @@ import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
 
-export default function ConversationPage() {
+import ReactMarkdown from "react-markdown";
+import { useToast } from "@/components/ui/use-toast";
+
+export default function CodePage() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([]);
 
@@ -41,7 +45,7 @@ export default function ConversationPage() {
         content: values.prompt,
       };
       const newMessages = [...messages, userMessage];
-      const response = await axios.post("/api/conversation", {
+      const response = await axios.post("/api/code", {
         messages: newMessages,
       });
 
@@ -56,14 +60,23 @@ export default function ConversationPage() {
     }
   };
 
+  const onCopy = (text: any) => {
+    if (!text) return;
+
+    navigator.clipboard.writeText(text);
+    toast({
+      description: "Code copied to clipboard",
+    });
+  };
+
   return (
     <div>
       <Heading
-        title="Conversation"
-        description="Our most advanced conversation model."
-        icon={MessageSquare}
-        iconColor="text-violet-500"
-        bgColor="bg-violet-500/10"
+        title="Code Generation"
+        description="Generate code using descriptive text."
+        icon={Code}
+        iconColor="text-green-700"
+        bgColor="bg-green-700/10"
       />
       <div className="px-4 lg:px-8">
         <div>
@@ -80,7 +93,7 @@ export default function ConversationPage() {
                       <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading}
-                        placeholder="How do I calculate the radius of a circle?"
+                        placeholder="Simple toggle button using react hooks."
                         {...field}
                       />
                     </FormControl>
@@ -117,7 +130,35 @@ export default function ConversationPage() {
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                <p className="text-sm">{message.content}</p>
+                <ReactMarkdown
+                  components={{
+                    pre: ({ node, ...props }) => {
+                      let text: any = props?.children;
+                      text = text?.props?.children;
+                      return (
+                        <div className=" w-full my-2 bg-black/10 rounded-lg group relative">
+                          <Button
+                            onClick={() => onCopy(text)}
+                            className="opacity-0 group-hover:opacity-100 transition absolute top-1 right-1"
+                            size="icon"
+                            variant="outline"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <div className="overflow-auto p-2">
+                            <pre {...props} />
+                          </div>
+                        </div>
+                      );
+                    },
+                    code: ({ node, ...props }) => (
+                      <code className="bg-black/10 rounded-lg p-1" {...props} />
+                    ),
+                  }}
+                  className="text-sm overflow-hidden leading-7"
+                >
+                  {message.content || ""}
+                </ReactMarkdown>
               </div>
             ))}
           </div>
