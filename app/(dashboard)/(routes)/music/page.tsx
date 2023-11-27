@@ -19,9 +19,11 @@ import { Loader } from "@/components/loader";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
+import { useProModal } from "@/hooks/use-pro-modal";
 
 export default function MusicPage() {
   const router = useRouter();
+  const proModal = useProModal();
 
   const [music, setMusic] = useState<string>();
 
@@ -43,8 +45,9 @@ export default function MusicPage() {
 
       form.reset();
     } catch (error: any) {
-      // TODO: Open Pro Modal
-      console.log(error);
+      if (error?.response?.status === 403) {
+        proModal.onOpen();
+      }
     } finally {
       router.refresh();
     }
@@ -97,7 +100,11 @@ export default function MusicPage() {
             </div>
           )}
           {!music && !isLoading && <Empty label="No music generated." />}
-          <div>Music here</div>
+          {music && (
+            <audio controls className="w-full mt-8">
+              <source src={music} />
+            </audio>
+          )}
         </div>
       </div>
     </div>

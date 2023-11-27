@@ -22,10 +22,12 @@ import { BotAvatar } from "@/components/bot-avatar";
 
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/components/ui/use-toast";
+import { useProModal } from "@/hooks/use-pro-modal";
 
 export default function CodePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const proModal = useProModal();
 
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([]);
 
@@ -53,8 +55,9 @@ export default function CodePage() {
 
       form.reset();
     } catch (error: any) {
-      // TODO: Open Pro Modal
-      console.log(error);
+      if (error?.response?.status === 403) {
+        proModal.onOpen();
+      }
     } finally {
       router.refresh();
     }
