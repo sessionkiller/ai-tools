@@ -57,6 +57,11 @@ export default function CodePage() {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         proModal.onOpen();
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Something went wrong",
+        });
       }
     } finally {
       router.refresh();

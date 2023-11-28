@@ -20,10 +20,12 @@ import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
 import { useProModal } from "@/hooks/use-pro-modal";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ConversationPage() {
   const router = useRouter();
   const proModal = useProModal();
+  const { toast } = useToast();
 
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([]);
 
@@ -53,6 +55,11 @@ export default function ConversationPage() {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         proModal.onOpen();
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Something went wrong",
+        });
       }
     } finally {
       router.refresh();

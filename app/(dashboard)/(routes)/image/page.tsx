@@ -28,10 +28,12 @@ import {
 import { Card, CardFooter } from "@/components/ui/card";
 import Image from "next/image";
 import { useProModal } from "@/hooks/use-pro-modal";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ImagePage() {
   const router = useRouter();
   const proModal = useProModal();
+  const { toast } = useToast();
 
   const [images, setImages] = useState<string[]>([]);
 
@@ -58,6 +60,11 @@ export default function ImagePage() {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         proModal.onOpen();
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Something went wrong",
+        });
       }
     } finally {
       router.refresh();

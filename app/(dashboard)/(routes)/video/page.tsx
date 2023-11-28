@@ -16,10 +16,12 @@ import { useState } from "react";
 import { Empty } from "@/components/empty";
 import { Loader } from "@/components/loader";
 import { useProModal } from "@/hooks/use-pro-modal";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function VideoPage() {
   const router = useRouter();
   const proModal = useProModal();
+  const { toast } = useToast();
 
   const [video, setVideo] = useState<string>();
 
@@ -43,6 +45,11 @@ export default function VideoPage() {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         proModal.onOpen();
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Something went wrong",
+        });
       }
     } finally {
       router.refresh();
